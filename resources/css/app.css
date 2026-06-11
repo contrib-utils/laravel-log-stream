@@ -1,0 +1,8 @@
+@import 'tailwindcss';
+
+/* Dark mode is driven by the `.dark` class on <html> (toggled in the shell
+   before paint and by the theme switcher), not the media query. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+html, body, #logscope-app { height: 100%; }
+body { margin: 0; }
