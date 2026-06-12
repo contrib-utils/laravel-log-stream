@@ -36,6 +36,30 @@ async function request(path, params = {}) {
     return res.json();
 }
 
+// State-changing request (POST/DELETE) with CSRF.
+async function mutate(path, method = 'POST') {
+    const res = await fetch(new URL(apiBase + path, window.location.origin), {
+        method,
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrf(),
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+        credentials: 'same-origin',
+    });
+
+    if (res.status === 401 || res.status === 419) {
+        window.location.assign((config.prefix ?? '/logscope') + '/login');
+        throw new Error('Unauthorized');
+    }
+    if (!res.ok) {
+        throw new Error(`Request failed (${res.status})`);
+    }
+
+    return res.json();
+}
+
 export const api = {
     config,
 
@@ -69,6 +93,19 @@ export const api = {
 
     entry(entryId) {
         return request(`/entries/${encodeURIComponent(entryId)}`).then((r) => r.data);
+    },
+
+    // --- File operations (gated by allow_file_operations) --------------------
+    downloadUrl(fileId) {
+        return `${apiBase}/files/${encodeURIComponent(fileId)}/download`;
+    },
+
+    clearFile(fileId) {
+        return mutate(`/files/${encodeURIComponent(fileId)}/clear`, 'POST');
+    },
+
+    deleteFile(fileId) {
+        return mutate(`/files/${encodeURIComponent(fileId)}`, 'DELETE');
     },
 
     // Ends the session login. Submits a real CSRF-protected form so the browser

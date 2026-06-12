@@ -34,6 +34,13 @@ Route::prefix('api')->name('logscope.api.')->middleware('logscope.access')->grou
     Route::get('files', [FilesController::class, 'index'])->name('files');
     Route::get('files/{fileId}/entries', [EntriesController::class, 'index'])->name('files.entries');
     Route::get('entries/{entryId}', [EntriesController::class, 'show'])->name('entries.show');
+
+    // File operations — additionally gated by the allow_file_operations switch.
+    Route::middleware('logscope.file-ops')->group(function () {
+        Route::get('files/{fileId}/download', [FilesController::class, 'download'])->name('files.download');
+        Route::post('files/{fileId}/clear', [FilesController::class, 'clear'])->name('files.clear');
+        Route::delete('files/{fileId}', [FilesController::class, 'destroy'])->name('files.destroy');
+    });
 });
 
 // --- SPA shell (gated, catch-all so client-side routing / deep links work) ---

@@ -7,6 +7,7 @@ use Illuminate\Support\ServiceProvider;
 use LogScope\Auth\Authorizer;
 use LogScope\Auth\EnvCredentialAuthorizer;
 use LogScope\Console\InstallCommand;
+use LogScope\Http\Middleware\EnsureFileOperationsAllowed;
 use LogScope\Http\Middleware\EnsureLogScopeAccess;
 use LogScope\Parsers\ParserManager;
 use LogScope\Sources\LogFileRepository;
@@ -59,6 +60,7 @@ class LogScopeServiceProvider extends ServiceProvider
     protected function registerMiddleware(): void
     {
         $this->app['router']->aliasMiddleware('logscope.access', EnsureLogScopeAccess::class);
+        $this->app['router']->aliasMiddleware('logscope.file-ops', EnsureFileOperationsAllowed::class);
     }
 
     protected function registerRoutes(): void

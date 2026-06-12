@@ -4,7 +4,7 @@ View, search, and filter your Laravel application logs through a fast Vue dashbo
 
 ![LogScope dashboard](https://raw.githubusercontent.com/contrib-utils/laravel-log-stream/main/art/screenshot.jpeg)
 
-> **Status:** Milestones 1–4 complete. Log discovery, byte-offset tailing, parsers for Laravel/Monolog plus nginx, Apache, Redis, PostgreSQL, supervisor and a generic fallback, the entries + search API, and the full SPA (list, detail, level filter, single-file and cross-file search, live tail, deep links, session login/logout) are all in place. Gated file operations, execution correlation, and mail previews are planned for later milestones.
+> **Status:** Milestones 1–5 complete. Log discovery, byte-offset tailing, parsers for Laravel/Monolog plus nginx, Apache, Redis, PostgreSQL, supervisor and a generic fallback, the entries + search API, gated file operations (download / clear / delete), and the full SPA (list, detail, level filter, single-file and cross-file search, live tail, deep links, session login/logout) are all in place. Execution correlation and mail previews are planned for later milestones.
 
 ## Features
 
@@ -14,6 +14,7 @@ View, search, and filter your Laravel application logs through a fast Vue dashbo
 - **Search.** Substring search within a file, or **cross-file search** across every (rotated) file in a source, with a composite cursor that pages seamlessly across file boundaries.
 - **Live tail.** Toggle live mode to follow a file; new entries arrive inline when you're at the top, or stack behind a "N new entries" pill when you've scrolled away.
 - **Deep links.** Every entry has a permalink. Opening it lands in the SPA with the entry pinned above the stream and its file selected for context.
+- **File operations.** Download, clear, or delete a log file from the sidebar — all behind the `allow_file_operations` master switch (off → the endpoints return 403) and a confirmation step for destructive actions.
 - **Polished UI.** Light/dark theme, responsive layout, keyboard shortcuts, accessible controls, and reduced-motion support.
 - **Secure by default.** An access gate protects the dashboard and API, with a session login/logout flow; opaque file ids are re-validated through a path-traversal guard on every read.
 
@@ -74,6 +75,11 @@ All endpoints sit under the configured prefix (`/logscope` by default) and requi
 | `GET` | `/api/files/{fileId}/entries` | Entries for a file. Params: `cursor`, `per_page`, `direction` (`backward`\|`forward`), `level` (comma-separated), `q`. |
 | `GET` | `/api/search?source=&q=` | Cross-file search within a source. Params: `cursor`, `per_page`, `level`. |
 | `GET` | `/api/entries/{entryId}` | A single entry, for share / deep links. |
+| `GET` | `/api/files/{fileId}/download` | Download the raw log file. † |
+| `POST` | `/api/files/{fileId}/clear` | Truncate the file in place. † |
+| `DELETE` | `/api/files/{fileId}` | Delete the file from disk. † |
+
+† File operations require `allow_file_operations` to be enabled (`LOGSCOPE_ALLOW_FILE_OPS`, default on); they respond 403 otherwise. State-changing calls run under the `web` middleware, so they require a valid CSRF token / session.
 
 ## Keyboard shortcuts
 

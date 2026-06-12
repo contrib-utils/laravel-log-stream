@@ -1,19 +1,81 @@
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue';
+import { ref, reactive, computed, onMounted, onBeforeUnmount, watch } from 'vue';
 import { api } from './api.js';
 import { useTheme } from './useTheme.js';
 import Sidebar from './components/Sidebar.vue';
 import LevelFilter from './components/LevelFilter.vue';
 import EntryList from './components/EntryList.vue';
+import ConfirmDialog from './components/ConfirmDialog.vue';
 
 const { isDark, toggle: toggleTheme } = useTheme();
 
 const prefix = (api.config.prefix ?? '/logscope').replace(/\/$/, '');
 const pollMs = Math.max(1000, Number(api.config.pollMs) || 3000);
 const canLogout = api.config.canLogout === true;
+const allowFileOps = api.config.allowFileOperations === true;
 
 function logout() {
     api.logout();
+}
+
+// --- File operations ---------------------------------------------------------
+const confirm = reactive({
+    open: false, title: '', message: '', confirmLabel: '', danger: false, busy: false, action: null,
+});
+
+function askClear(file) {
+    Object.assign(confirm, {
+        open: true, danger: true, busy: false,
+        title: 'Clear this log file?',
+        message: `This empties “${file.name}” on disk. This cannot be undone.`,
+        confirmLabel: 'Clear log',
+        action: () => doClear(file),
+    });
+}
+
+function askDelete(file) {
+    Object.assign(confirm, {
+        open: true, danger: true, busy: false,
+        title: 'Delete this log file?',
+        message: `This permanently removes “${file.name}” from disk. This cannot be undone.`,
+        confirmLabel: 'Delete file',
+        action: () => doDelete(file),
+    });
+}
+
+async function onConfirm() {
+    if (!confirm.action) return;
+    confirm.busy = true;
+    try {
+        await confirm.action();
+        confirm.open = false;
+    } catch (e) {
+        error.value = 'The file operation failed.';
+    } finally {
+        confirm.busy = false;
+    }
+}
+
+function onCancel() {
+    if (!confirm.busy) confirm.open = false;
+}
+
+async function doClear(file) {
+    await api.clearFile(file.id);
+    const f = files.value.find((x) => x.id === file.id);
+    if (f) f.size = 0;
+    if (searching.value || selectedFile.value?.id === file.id) reloadEntries();
+}
+
+async function doDelete(file) {
+    await api.deleteFile(file.id);
+    files.value = files.value.filter((x) => x.id !== file.id);
+    if (selectedFile.value?.id === file.id) {
+        selectedFile.value = files.value[0] ?? null;
+        reloadEntries();
+    } else if (searching.value) {
+        reloadEntries();
+    }
 }
 
 // --- State -------------------------------------------------------------------
@@ -449,8 +511,11 @@ onBeforeUnmount(() => {
                     :selected-source="selectedSource"
                     :selected-file-id="scope === 'file' ? (selectedFile?.id ?? null) : null"
                     :loading-files="loadingFiles"
+                    :allow-file-ops="allowFileOps"
                     @select-source="selectSource"
                     @select-file="selectFile"
+                    @clear-file="askClear"
+                    @delete-file="askDelete"
                 />
             </aside>
 
@@ -549,5 +614,16 @@ onBeforeUnmount(() => {
                 />
             </main>
         </div>
+
+        <ConfirmDialog
+            :open="confirm.open"
+            :title="confirm.title"
+            :message="confirm.message"
+            :confirm-label="confirm.confirmLabel"
+            :danger="confirm.danger"
+            :busy="confirm.busy"
+            @confirm="onConfirm"
+            @cancel="onCancel"
+        />
     </div>
 </template>
