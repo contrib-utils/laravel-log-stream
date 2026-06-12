@@ -51,4 +51,30 @@ class Ids
 
         return [$fileId, (int) $offset];
     }
+
+    /**
+     * A cross-file search cursor pins the current file (by its id) and the
+     * within-file byte cursor the reader handed back, so the next page resumes
+     * exactly where the last one stopped — even across file boundaries.
+     */
+    public static function searchCursor(string $fileId, ?string $inner): string
+    {
+        return self::encode(json_encode(['f' => $fileId, 'c' => $inner], JSON_THROW_ON_ERROR));
+    }
+
+    /**
+     * @return array{0: string, 1: ?string}|null [fileId, innerCursor] or null when malformed
+     */
+    public static function decodeSearchCursor(string $cursor): ?array
+    {
+        $decoded = json_decode(self::decode($cursor), true);
+
+        if (! is_array($decoded) || ! isset($decoded['f']) || ! is_string($decoded['f'])) {
+            return null;
+        }
+
+        $inner = $decoded['c'] ?? null;
+
+        return [$decoded['f'], is_string($inner) ? $inner : null];
+    }
 }

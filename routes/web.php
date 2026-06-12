@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use LogScope\Http\Controllers\Api\EntriesController;
 use LogScope\Http\Controllers\Api\FilesController;
+use LogScope\Http\Controllers\Api\SearchController;
 use LogScope\Http\Controllers\Api\SourcesController;
 use LogScope\Http\Controllers\AppController;
 use LogScope\Http\Controllers\AuthController;
@@ -29,6 +30,7 @@ Route::prefix('api')->name('logscope.api.')->middleware('logscope.access')->grou
     Route::get('ping', fn () => response()->json(['data' => ['ok' => true]]))->name('ping');
 
     Route::get('sources', [SourcesController::class, 'index'])->name('sources');
+    Route::get('search', [SearchController::class, 'index'])->name('search');
     Route::get('files', [FilesController::class, 'index'])->name('files');
     Route::get('files/{fileId}/entries', [EntriesController::class, 'index'])->name('files.entries');
     Route::get('entries/{entryId}', [EntriesController::class, 'show'])->name('entries.show');

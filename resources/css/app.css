@@ -35,3 +35,37 @@ body {
     to   { opacity: 1; transform: translateY(0); }
 }
 .logscope-fade-in { animation: logscope-fade-in 0.18s ease-out; }
+
+/* Briefly highlight a just-arrived (live tail) or deep-linked row. */
+@keyframes logscope-flash {
+    0%   { background-color: rgba(99, 102, 241, 0.18); }
+    100% { background-color: transparent; }
+}
+.logscope-flash { animation: logscope-flash 1.3s ease-out; }
+
+/* Refresh icon spin while a request is in flight. */
+@keyframes logscope-spin { to { transform: rotate(360deg); } }
+.logscope-spin { animation: logscope-spin 0.7s linear infinite; }
+
+/* Floating pill / button enter-leave (new-entries, jump-to-top). */
+.logscope-pill-enter-active,
+.logscope-pill-leave-active { transition: opacity 0.18s ease, transform 0.18s ease; }
+.logscope-pill-enter-from,
+.logscope-pill-leave-to { opacity: 0; transform: translateY(-6px) translateX(-50%); }
+.logscope-pill-enter-to,
+.logscope-pill-leave-from { opacity: 1; }
+
+.logscope-fade-enter-active,
+.logscope-fade-leave-active { transition: opacity 0.18s ease, transform 0.18s ease; }
+.logscope-fade-enter-from,
+.logscope-fade-leave-to { opacity: 0; transform: translateY(6px); }
+
+/* Respect users who prefer reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+    }
+}
