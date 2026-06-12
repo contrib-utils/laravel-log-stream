@@ -2,6 +2,8 @@
 
 View, search, and filter your Laravel application logs through a fast Vue dashboard and a JSON API — without ever loading a multi-gigabyte file into memory.
 
+![LogScope dashboard](https://raw.githubusercontent.com/contrib-utils/laravel-log-stream/main/art/screenshot.jpeg)
+
 > **Status:** Milestones 1–3 complete. Log discovery, byte-offset tailing, the Laravel/Monolog parser, the entries + search API, and the full SPA (list, detail, level filter, single-file and cross-file search, live tail, deep links) are all in place. Additional log parsers, gated file operations, execution correlation, and mail previews are planned for later milestones.
 
 ## Features
@@ -96,6 +98,10 @@ cd packages/logscope
 composer install
 vendor/bin/phpunit
 ```
+
+## Credits
+
+Created and maintained by [Heinrich Smith Ondeyo](https://github.com/Heinirich).
 
 ## License
 
