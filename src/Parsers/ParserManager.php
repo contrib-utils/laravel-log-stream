@@ -14,6 +14,13 @@ class ParserManager
     /** @var array<string, class-string<LogParser>> */
     protected array $map = [
         'laravel' => LaravelParser::class,
+        'horizon' => LaravelParser::class,
+        'nginx' => NginxParser::class,
+        'apache' => ApacheParser::class,
+        'redis' => RedisParser::class,
+        'postgres' => PostgresParser::class,
+        'supervisor' => SupervisorParser::class,
+        'generic' => GenericParser::class,
     ];
 
     public function __construct(

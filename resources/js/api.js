@@ -70,4 +70,21 @@ export const api = {
     entry(entryId) {
         return request(`/entries/${encodeURIComponent(entryId)}`).then((r) => r.data);
     },
+
+    // Ends the session login. Submits a real CSRF-protected form so the browser
+    // follows the server's redirect to the login screen.
+    logout() {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = config.logoutUrl ?? (config.prefix ?? '/logscope') + '/logout';
+
+        const token = document.createElement('input');
+        token.type = 'hidden';
+        token.name = '_token';
+        token.value = csrf();
+        form.appendChild(token);
+
+        document.body.appendChild(form);
+        form.submit();
+    },
 };

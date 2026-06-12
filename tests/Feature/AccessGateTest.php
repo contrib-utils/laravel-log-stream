@@ -69,6 +69,22 @@ class AccessGateTest extends TestCase
     }
 
     #[Test]
+    public function logout_ends_the_session_and_relocks_the_dashboard(): void
+    {
+        $this->configureCredentials();
+
+        $this->post('/logscope/login', [
+            'username' => 'admin',
+            'password' => 'secret',
+        ]);
+        $this->get('/logscope')->assertOk();
+
+        $this->post('/logscope/logout')->assertRedirect('/logscope/login');
+
+        $this->get('/logscope')->assertRedirect('/logscope/login');
+    }
+
+    #[Test]
     public function login_form_rejects_bad_credentials(): void
     {
         $this->configureCredentials();

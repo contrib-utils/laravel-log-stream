@@ -169,13 +169,29 @@ return [
     ],
 
     'level_aliases' => [
-        'warn'    => 'warning',
-        'err'     => 'error',
-        'crit'    => 'critical',
-        'fatal'   => 'critical',
-        'panic'   => 'emergency',
-        'trace'   => 'debug',
-        'fine'    => 'debug',
+        'warn'          => 'warning',
+        'err'           => 'error',
+        'crit'          => 'critical',
+        'fatal'         => 'critical',
+        'panic'         => 'emergency',
+        'emerg'         => 'emergency',
+        'trace'         => 'debug',
+        'fine'          => 'debug',
+        'verbose'       => 'debug',
+        'informational' => 'info',
+
+        // PostgreSQL
+        'log'           => 'info',
+        'detail'        => 'debug',
+        'hint'          => 'debug',
+        'statement'     => 'debug',
+        'context'       => 'debug',
+
+        // Supervisord (CRIT/ERRO/WARN/INFO/DEBG/TRAC/BLAT)
+        'erro'          => 'error',
+        'debg'          => 'debug',
+        'trac'          => 'debug',
+        'blat'          => 'debug',
     ],
 
     /*

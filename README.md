@@ -4,18 +4,18 @@ View, search, and filter your Laravel application logs through a fast Vue dashbo
 
 ![LogScope dashboard](https://raw.githubusercontent.com/contrib-utils/laravel-log-stream/main/art/screenshot.jpeg)
 
-> **Status:** Milestones 1–3 complete. Log discovery, byte-offset tailing, the Laravel/Monolog parser, the entries + search API, and the full SPA (list, detail, level filter, single-file and cross-file search, live tail, deep links) are all in place. Additional log parsers, gated file operations, execution correlation, and mail previews are planned for later milestones.
+> **Status:** Milestones 1–4 complete. Log discovery, byte-offset tailing, parsers for Laravel/Monolog plus nginx, Apache, Redis, PostgreSQL, supervisor and a generic fallback, the entries + search API, and the full SPA (list, detail, level filter, single-file and cross-file search, live tail, deep links, session login/logout) are all in place. Gated file operations, execution correlation, and mail previews are planned for later milestones.
 
 ## Features
 
 - **Reads huge logs cheaply.** A byte-offset reader pages newest-first and tails in `O(window)`, never `O(file)`, so rotated multi-GB logs open instantly.
-- **Laravel/Monolog parser.** Handles the default line format, multi-line stack traces, and trailing JSON context/extra, plus the JSON formatter. Malformed lines are surfaced, never dropped.
-- **Level filtering** across the eight PSR-3 levels (plus `unknown`), with per-level counts on the loaded view.
+- **Many log formats.** A first-class Laravel/Monolog parser (line format, multi-line stack traces, trailing JSON context/extra, and the JSON formatter), plus parsers for **nginx**, **Apache**, **Redis**, **PostgreSQL**, and **supervisor**, and a **generic** fallback. Malformed lines are surfaced, never dropped.
+- **Level filtering** across the eight PSR-3 levels (plus `unknown`), with per-level counts on the loaded view. Source-specific severity tokens (nginx `emerg`, Postgres `LOG`, supervisor `ERRO`, …) are normalised via configurable aliases.
 - **Search.** Substring search within a file, or **cross-file search** across every (rotated) file in a source, with a composite cursor that pages seamlessly across file boundaries.
 - **Live tail.** Toggle live mode to follow a file; new entries arrive inline when you're at the top, or stack behind a "N new entries" pill when you've scrolled away.
 - **Deep links.** Every entry has a permalink. Opening it lands in the SPA with the entry pinned above the stream and its file selected for context.
 - **Polished UI.** Light/dark theme, responsive layout, keyboard shortcuts, accessible controls, and reduced-motion support.
-- **Secure by default.** An access gate protects the dashboard and API; opaque file ids are re-validated through a path-traversal guard on every read.
+- **Secure by default.** An access gate protects the dashboard and API, with a session login/logout flow; opaque file ids are re-validated through a path-traversal guard on every read.
 
 ## Requirements
 
@@ -48,6 +48,8 @@ Then visit `/logscope`.
 - In **any other** environment, missing credentials lock the dashboard down (403) — it is never silently open.
 
 Publish `config/logscope.php` to customise the route prefix, the access middleware, log **sources** (glob patterns + parser), level labels/colours and aliases, and the live-tail poll interval (`LOGSCOPE_POLL_MS`, default 3000ms).
+
+Beyond `laravel`, the config ships sources for `horizon`, `nginx`, `apache`, `redis`, `postgres`, `supervisor`, and `php-fpm` — all **disabled by default**, since their log locations vary by host. Enable the ones you have (set `enabled => true` and adjust `paths`). Available `parser` values: `laravel`, `nginx`, `apache`, `redis`, `postgres`, `supervisor`, `generic`.
 
 ### Custom authorization (production path)
 
