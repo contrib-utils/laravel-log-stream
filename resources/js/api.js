@@ -56,6 +56,17 @@ export const api = {
         });
     },
 
+    // Cross-file search across every file in a source.
+    search(source, { cursor, level, q, perPage = 50 } = {}) {
+        return request('/search', {
+            source,
+            cursor,
+            level: level && level.length ? level.join(',') : null,
+            q,
+            per_page: perPage,
+        });
+    },
+
     entry(entryId) {
         return request(`/entries/${encodeURIComponent(entryId)}`).then((r) => r.data);
     },

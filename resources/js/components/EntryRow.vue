@@ -10,8 +10,12 @@ const props = defineProps({
     entry: { type: Object, required: true },
     query: { type: String, default: '' },
     expanded: { type: Boolean, default: false },
+    // Cross-file search results show which file each row came from.
+    showFile: { type: Boolean, default: false },
+    // Briefly ring + tint a row that just arrived (live tail) or was deep-linked.
+    flash: { type: Boolean, default: false },
 });
-const emit = defineEmits(['toggle']);
+const emit = defineEmits(['toggle', 'open-file']);
 
 const copied = ref('');
 
@@ -55,7 +59,10 @@ function onKey(e) {
 <template>
     <div
         class="group relative border-b border-l-[3px] border-b-slate-100 transition-colors dark:border-b-slate-800/60"
-        :class="expanded ? 'bg-slate-50 dark:bg-slate-900/50' : 'hover:bg-slate-50/70 dark:hover:bg-slate-900/40'"
+        :class="[
+            expanded ? 'bg-slate-50 dark:bg-slate-900/50' : 'hover:bg-slate-50/70 dark:hover:bg-slate-900/40',
+            flash ? 'logscope-flash' : '',
+        ]"
         :style="rowStyle"
     >
         <!-- Single-line summary -->
@@ -79,6 +86,17 @@ function onKey(e) {
                 class="hidden shrink-0 font-mono text-[11px] tabular-nums text-slate-400 md:block dark:text-slate-500"
                 :datetime="entry.logged_at"
             >{{ formatTimestamp(entry.logged_at) }}</time>
+
+            <button
+                v-if="showFile && entry.file_name"
+                type="button"
+                class="hidden shrink-0 items-center gap-1 rounded bg-slate-100 px-1.5 py-px font-mono text-[10px] text-slate-500 transition hover:bg-indigo-100 hover:text-indigo-700 sm:inline-flex dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-indigo-500/20 dark:hover:text-indigo-300"
+                :title="`Open ${entry.file_name}`"
+                @click.stop="emit('open-file', entry)"
+            >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-3 w-3"><path stroke-linecap="round" stroke-linejoin="round" d="M14 3v4a1 1 0 0 0 1 1h4M5 3h9l5 5v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/></svg>
+                <span class="max-w-[120px] truncate">{{ entry.file_name }}</span>
+            </button>
 
             <span
                 class="min-w-0 flex-1 truncate font-sans text-[13px] leading-5 text-slate-700 dark:text-slate-200"
@@ -117,6 +135,7 @@ function onKey(e) {
         <div v-if="expanded" class="logscope-fade-in space-y-2 pb-2.5 pl-7 pr-3 text-[12px]">
             <div class="flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-[11px] text-slate-500 dark:text-slate-400">
                 <span class="md:hidden"><span class="text-slate-400 dark:text-slate-600">time</span> {{ formatTimestamp(entry.logged_at) }}</span>
+                <span v-if="showFile && entry.file_name"><span class="text-slate-400 dark:text-slate-600">file</span> {{ entry.file_name }}</span>
                 <span v-if="entry.channel"><span class="text-slate-400 dark:text-slate-600">channel</span> {{ entry.channel }}</span>
                 <span v-if="entry.execution_id"><span class="text-slate-400 dark:text-slate-600">exec</span> {{ entry.execution_id }}</span>
             </div>

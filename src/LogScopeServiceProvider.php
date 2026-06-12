@@ -11,6 +11,7 @@ use LogScope\Http\Middleware\EnsureLogScopeAccess;
 use LogScope\Parsers\ParserManager;
 use LogScope\Sources\LogFileRepository;
 use LogScope\Sources\LogReader;
+use LogScope\Sources\LogSearcher;
 use LogScope\Support\LevelNormalizer;
 
 class LogScopeServiceProvider extends ServiceProvider
@@ -43,6 +44,7 @@ class LogScopeServiceProvider extends ServiceProvider
         $this->app->singleton(ParserManager::class);
         $this->app->singleton(LogFileRepository::class);
         $this->app->singleton(LogReader::class);
+        $this->app->singleton(LogSearcher::class);
     }
 
     public function boot(): void
